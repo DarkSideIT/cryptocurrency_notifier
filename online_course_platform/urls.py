@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+<<<<<<< Updated upstream
 from django.urls import path
 
 
@@ -23,4 +24,27 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
+=======
+from django.urls import path, re_path
+from currency.handlers.consumers import CryptoQuotesConsumer
+
+
+from currency.registration import views as registration
+from currency.actions import views as action
+
+websocket_urlpatterns = [
+    re_path(r'ws/crypto_quotes_group/$', CryptoQuotesConsumer.as_asgi())
+]
+
+
+urlpatterns = [
+    path('', registration.home_view, name='home'),
+    path('register/', registration.register, name='register'),
+    path('login/', registration.login, name='login'),
+    path('logout/', registration.logout, name='logout'),
+    #path('home/show_crypto/', action.show_crypto, name='show_crypto'),
+    #path('home/add_cryptocurrency/', action.add, name='add_crypto'),
+    #path('home/remove_cryptocurrency/', action.remove, name='remove_crypto'),
+    #path('home/edit_cryptocurrency/', action.edit, name='edit_crypto'),
+>>>>>>> Stashed changes
 ]
