@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
 
 from pathlib import Path
 
@@ -29,6 +30,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+AUTH_USER_MODEL = 'currency.User'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'currency',
+    'rest_framework_swagger',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +59,7 @@ ROOT_URLCONF = 'online_course_platform.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -68,7 +72,17 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = 'online_course_platform.asgi.application'
+
+
 WSGI_APPLICATION = 'online_course_platform.wsgi.application'
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 
 # Database
@@ -77,7 +91,7 @@ WSGI_APPLICATION = 'online_course_platform.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'crypto',
+        'NAME': 'cripto',
         'USER': 'postgres',
         'PASSWORD': '159753',
         'HOST': 'localhost',
@@ -105,6 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -117,12 +132,25 @@ USE_I18N = True
 USE_TZ = True
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'currency/static/'
+STATICFILES_DIRS = [BASE_DIR, 'currency/static/']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+ALL_COINS = list(['btc', 'eth', 'usdt', 'bnb', 'usdc', 'xrp', 'ada', 'doge', 'ltc', 'sol', 
+             'trx', 'weth', 'dot', 'matic', 'bch', 'wbtc', 'shib', 'avax', 'dai', 'wsteth',
+             'uni', 'busd', 'link', 'atom', 'xmr', 'etc', 'ldo', 'xlm', 'ton', 'icp', 
+             'fil', 'imx', 'arb', 'vet', 'ht', 'mx', 'rndr', 'qnt', 'twt', 'fxs', 'sand', 
+             'usdp', 'aave', 'bsv', 'apt', 'ens', 'egld', 'algo', 'woo'])
+
+
+START_COINS = list(['btc', 'eth', 'usdt'])
