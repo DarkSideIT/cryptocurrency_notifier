@@ -1,0 +1,160 @@
+{%load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Отслеживание криптовалют</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="{%static 'currency/static/style.css'%}">
+</head>
+<body>
+  <header>
+    <div class="buttons">
+      <button class="register-btn">Регистрация</button>
+      <button class="login-btn">Войти</button>
+    </div>
+  </header>
+
+  <section class="crypto-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Название криптовалюты</th>
+          <th>Цена</th>
+          <th>Капитализация</th>
+          <th>Изменение цены за 24ч</th>
+        </tr>
+      </thead>
+      <tbody id="crypto-quotes-table">
+        <script>
+        $(document).ready(function () {
+            var socket = new WebSocket('ws://localhost:5000/ws/crypto_quotes_group/');
+            socket.onmessage = function (e) {
+                var data = JSON.parse(e.data);
+                console.log(data)
+                updateCryptoQuotesTable(data)
+                // Обновление данных о котировках в таблице
+            };
+        
+            setInterval(function () {
+                socket.send('update');
+            }, 2500);})
+            function updateCryptoQuotesTable(data) {
+                var tableBody = $('#crypto-quotes-table');
+                tableBody.empty(); // Очистка содержимого таблицы
+                var previousData = JSON.parse(localStorage.getItem('previousData'));
+        
+                for (var key in data) {
+                    var price = data[key][0];
+                    var difference = data[key][2];
+                    var previousDifference = previousData && previousData[key] ? previousData[key][2] : null;
+                    var priceClass = '';
+                    var differenceClass = '';
+
+                    if (previousDifference !== null) {
+                    if (parseFloat(difference) > parseFloat(previousDifference)) {
+                        differenceClass = 'green-blink';
+                    } else if (parseFloat(difference) < parseFloat(previousDifference)) {
+                        differenceClass = 'red-blink';
+                    }
+                    
+                    }
+                    var row = '<tr>' +
+                        '<td>' + key + '</td>' +
+                        '<td class="' + priceClass + '">' + price + '</td>' +
+                        '<td>' + data[key][1] + '</td>' +
+                        '<td class="' + differenceClass + '">' + difference + '</td>' +
+                        '</tr>';
+        
+                    tableBody.append(row); // Добавление новой строки в таблицу
+                }
+                localStorage.setItem('previousData', JSON.stringify(data));
+            }    
+        </script>
+        <!-- Здесь будут динамически генерируемые строки таблицы -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Окна для регистрации и входа -->
+  <div class="modal" id="register-modal">
+    <div class="modal-content">
+        <h2>Регистрация</h2>
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+          <label for="nickname">Имя пользователя:</label>
+          <input type="text" id="nickname" name="nickname" required>
+          <label for="email">Электронная почта</label>
+          <input type="text" id="email" name="email" required>
+          <label for="password">Пароль:</label>
+          <input type="password" id="password" name="password" required>
+          <button type="submit">Зарегистрироваться</button>
+        </form>
+        {% if error_message %}
+    <div class="registration-error">
+      <p class="error-message">{{ error_message }}</p>
+    </div>
+    {% endif %}
+    {% if success_message %}
+    <div class="registration-success">
+      <p class="success-message">{{ success_message }}</p>
+    </div>
+    {% endif %}
+      </div>
+  </div>
+
+  <div class="modal" id="login-modal">
+    <div class="modal-content">
+        <h2>Вход</h2>
+        <form method="POST" action="{% url 'login'%}">
+            {%csrf_token%}
+          <label for="email">Электронная почта:</label>
+          <input type="text" id="email" name="email" required>
+          <label for="password">Пароль:</label>
+          <input type="password" id="password" name="password" required>
+          <button type="submit">Войти</button>
+        </form>
+        {% if error_message %}
+    <div class="registration-error">
+      <p class="error-message">{{ error_message }}</p>
+    </div>
+    {% endif %}
+    {% if success_message %}
+    <div class="registration-success">
+      <p class="success-message">{{ success_message }}</p>
+    </div>
+    {% endif %}
+      </div>
+  </div>
+
+  <script>
+    const registerBtn = document.querySelector('.register-btn');
+const registerModal = document.getElementById('register-modal');
+const closeModalBtn = document.querySelector('.close-modal');
+
+registerBtn.addEventListener('click', () => {
+  registerModal.style.display = 'flex';
+});
+
+window.addEventListener('click', (event) => {
+  if (event.target === registerModal) {
+    registerModal.style.display = 'none';
+  }
+});
+
+const loginBtn = document.querySelector('.login-btn');
+const loginModal = document.getElementById('login-modal');
+
+loginBtn.addEventListener('click', () => {
+  loginModal.style.display = 'flex';
+});
+
+window.addEventListener('click', (event) => {
+  if (event.target === loginModal) {
+    loginModal.style.display = 'none';
+  }
+}
+);
+  </script>
+</body>
+</html>
