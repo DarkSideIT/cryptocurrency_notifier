@@ -17,17 +17,17 @@ def register(request):
     if request.method == 'POST':
         body_unicode = request.body.decode('utf-8')
         body_data = json.loads(body_unicode)
-        nickname = body_data["nickname"]
+        username = body_data["username"]
         email = body_data["email"]
         password = body_data["password"]
         register_time = datetime.now()
         balance = 0
         access_level = "user"
         try:
-            user = User.objects.get(nickname=nickname)
+            user = User.objects.get(username=username)
             return JsonResponse({"message": "this user already exists"})
         except User.DoesNotExist:
-            user = User.objects.create(nickname=nickname, email=email, password=password, register_time=register_time, balance=balance, access_level=access_level)
+            user = User.objects.create(username=username, email=email, password=password, register_time=register_time, balance=balance, access_level=access_level)
             user.save()
             return JsonResponse({"message": "user is saved"})
     
